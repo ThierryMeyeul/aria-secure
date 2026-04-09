@@ -21,6 +21,21 @@ __pycache__/
 dist/
 build/
 .eggs/
+__pycache__/
+*$py.class
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
 
 # ── Django ────────────────────────────────────
 *.log
@@ -39,6 +54,8 @@ ai_engine/models/*.bin
 ai_engine/data/
 mlruns/
 mlartifacts/
+ai_engine/logs/*.log
+ai_engine/logs/mslflow/
 
 # ── Jupyter Notebooks ─────────────────────────
 .ipynb_checkpoints/
@@ -78,6 +95,7 @@ docker/.env.production
 *.swo
 .DS_Store
 Thumbs.db
+*~
 
 # ── Sécurité (NE JAMAIS committer) ────────────
 *.pem
@@ -86,3 +104,14 @@ Thumbs.db
 *.crt
 secrets/
 ssl/
+
+# ── Environment ───────────────────────────────
+.env.local
+.env.production
+
+# ── OS ────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── MLflow ────────────────────────────────────
+mlruns/
