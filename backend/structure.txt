@@ -1,0 +1,159 @@
+aria-secure/
+├── backend/
+│   ├── manage.py
+│   ├── requirements.txt
+│   ├── requirements-dev.txt
+│   ├── pyproject.toml              # Configuration moderne Python
+│   ├── .env.example                # Template des variables d'environnement
+│   ├── .env                        # Variables sensibles (gitignored)
+│   ├── .gitignore
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   │
+│   ├── aria_backend/               # Configuration principale Django
+│   │   ├── __init__.py
+│   │   ├── asgi.py
+│   │   ├── wsgi.py
+│   │   ├── urls.py                 # URLs racines
+│   │   │
+│   │   └── settings/               # Settings modulaires
+│   │       ├── __init__.py
+│   │       ├── base.py             # Configuration commune
+│   │       ├── development.py      # Configuration développement
+│   │       ├── staging.py          # Configuration staging
+│   │       ├── production.py       # Configuration production
+│   │       └── test.py             # Configuration pour les tests
+│   │
+│   ├── apps/                       # Applications Django
+│   │   ├── __init__.py
+│   │   │
+│   │   ├── core/                   # Utilitaires communs
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── models.py           # Modèles abstraits de base
+│   │   │   ├── permissions.py      # Permissions personnalisées
+│   │   │   ├── exceptions.py       # Exceptions personnalisées
+│   │   │   ├── pagination.py       # Pagination personnalisée
+│   │   │   ├── renderers.py        # Renderers API personnalisés
+│   │   │   └── utils.py            # Fonctions utilitaires
+│   │   │
+│   │   ├── authentication/         # Gestion authentification
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── models.py           # Modèle User personnalisé
+│   │   │   ├── managers.py         # UserManager personnalisé
+│   │   │   ├── serializers.py      # Serializers pour auth
+│   │   │   ├── views.py            # Views (login, MFA, etc.)
+│   │   │   ├── urls.py
+│   │   │   ├── backends.py         # Backend d'authentification
+│   │   │   ├── utils.py            # Utilitaires (JWT, MFA)
+│   │   │   ├── validators.py       # Validateurs personnalisés
+│   │   │   ├── signals.py          # Signals (post_save, etc.)
+│   │   │   ├── tasks.py            # Tâches Celery
+│   │   │   │
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   │
+│   │   │   └── tests/
+│   │   │       ├── __init__.py
+│   │   │       ├── test_models.py
+│   │   │       ├── test_views.py
+│   │   │       └── test_serializers.py
+│   │   │
+│   │   ├── patients/               # Gestion des patients
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── models.py
+│   │   │   ├── serializers.py
+│   │   │   ├── views.py
+│   │   │   ├── urls.py
+│   │   │   ├── filters.py          # Filtres pour les recherches
+│   │   │   ├── permissions.py
+│   │   │   ├── tasks.py
+│   │   │   ├── migrations/
+│   │   │   └── tests/
+│   │   │
+│   │   ├── radiographies/          # Gestion des radios
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── models.py
+│   │   │   ├── serializers.py
+│   │   │   ├── views.py
+│   │   │   ├── urls.py
+│   │   │   ├── validators.py       # Validation des fichiers
+│   │   │   ├── storage.py          # Stockage S3/MinIO
+│   │   │   ├── tasks.py
+│   │   │   ├── migrations/
+│   │   │   └── tests/
+│   │   │
+│   │   ├── analyses/               # Analyses IA
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── models.py
+│   │   │   ├── serializers.py
+│   │   │   ├── views.py
+│   │   │   ├── urls.py
+│   │   │   ├── tasks.py            # Tâches Celery pour l'IA
+│   │   │   ├── services.py         # Service d'inférence IA
+│   │   │   ├── migrations/
+│   │   │   └── tests/
+│   │   │
+│   │   └── rapports/               # Génération de rapports
+│   │       ├── __init__.py
+│   │       ├── apps.py
+│   │       ├── models.py
+│   │       ├── serializers.py
+│   │       ├── views.py
+│   │       ├── urls.py
+│   │       ├── pdf_generator.py    # Génération PDF
+│   │       ├── signatures.py       # Signatures numériques
+│   │       ├── tasks.py
+│   │       ├── migrations/
+│   │       └── tests/
+│   │
+│   ├── api/                        # Configuration API REST
+│   │   ├── __init__.py
+│   │   ├── urls.py                 # Routes API v1
+│   │   ├── v1/                     # Version 1 de l'API
+│   │   │   ├── __init__.py
+│   │   │   └── urls.py
+│   │   └── middleware/             # Middleware personnalisés
+│   │       ├── __init__.py
+│   │       ├── audit.py            # Audit logging
+│   │       ├── cors.py             # Configuration CORS
+│   │       └── rate_limit.py       # Rate limiting
+│   │
+│   ├── celery_app/                 # Configuration Celery
+│   │   ├── __init__.py
+│   │   ├── celery.py               # App Celery
+│   │   └── tasks.py                # Tâches périodiques
+│   │
+│   ├── static/                     # Fichiers statiques
+│   │   ├── css/
+│   │   ├── js/
+│   │   └── img/
+│   │
+│   ├── media/                      # Fichiers uploadés (dev seulement)
+│   │
+│   ├── templates/                  # Templates Django (admin, emails)
+│   │   ├── admin/
+│   │   ├── emails/
+│   │   │   ├── welcome.html
+│   │   │   ├── mfa_code.html
+│   │   │   └── report_ready.html
+│   │   └── base.html
+│   │
+│   ├── scripts/                    # Scripts utilitaires
+│   │   ├── backup_db.py
+│   │   ├── restore_db.py
+│   │   ├── create_superuser.py
+│   │   └── seed_data.py
+│   │
+│   ├── fixtures/                   # Données de test
+│   │   ├── users.json
+│   │   ├── patients.json
+│   │   └── sample_data.json
+│   │
+│   └── docs/                       # Documentation API
+│       ├── openapi.yaml            # Spécification OpenAPI
+│       └── postman_collection.json # Collection Postman

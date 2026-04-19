@@ -1,0 +1,56 @@
+# backend/requirements.txt
+# Dépendances principales pour ARIA Secure Backend
+
+# Django Core
+Django>=4.2.11
+djangorestframework>=3.14.0
+django-cors-headers>=4.3.1
+django-filter>=23.5
+django-storages>=1.14.2
+
+# Base de données
+psycopg2-binary>=2.9.9
+dj-database-url>=2.1.0
+
+# Authentification & Sécurité
+djangorestframework-simplejwt>=5.3.1
+pyotp>=2.9.0          # MFA (TOTP)
+qrcode>=7.4.2         # QR codes pour setup MFA
+cryptography>=42.0.5
+argon2-cffi>=23.1.0   # Hashage de mots de passe
+
+# Tâches asynchrones
+celery>=5.3.6
+redis>=5.0.1
+django-celery-beat>=2.5.0
+django-celery-results>=2.5.1
+
+# Stockage & Fichiers
+boto3>=1.34.51        # AWS S3 / MinIO
+Pillow>=10.2.0
+pydicom>=2.4.4        # Fichiers DICOM
+python-magic>=0.4.27  # Détection type MIME
+
+# Génération PDF
+reportlab>=4.1.0
+weasyprint>=61.2      # HTML to PDF
+
+# Monitoring & Logging
+sentry-sdk>=1.40.4
+django-health-check>=3.18.1
+django-prometheus>=2.3.1
+
+# API Documentation
+drf-yasg>=1.21.7      # Swagger/OpenAPI
+drf-spectacular>=0.27.1
+
+# Utilitaires
+python-dotenv>=1.0.1
+pytz>=2024.1
+django-extensions>=3.2.3
+django-debug-toolbar>=4.3.0  # Dev only
+
+# Validation & Sécurité
+django-otp>=1.3.0     # One-time passwords
+django-axes>=6.3.0    # Protection brute force
+django-csp>=3.8       # Content Security Policy
