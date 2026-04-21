@@ -51,11 +51,13 @@ ai_engine/models/*.pt
 ai_engine/models/*.pth
 ai_engine/models/*.onnx
 ai_engine/models/*.bin
-ai_engine/data/
+ai_engine/data/MURA-v1.1
+ai_engine/dataset/
 mlruns/
 mlartifacts/
 ai_engine/logs/*.log
 ai_engine/logs/mslflow/
+ai_engine/test_setup.py
 
 # ── Jupyter Notebooks ─────────────────────────
 .ipynb_checkpoints/

@@ -165,6 +165,16 @@ REST_FRAMEWORK = {
 # JWT SETTINGS
 # ============================================
 
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+with open("/home/meyeul/private.pem") as f:
+    SIGNING_KEY = f.read()
+
+with open("/home/meyeul/public.pem") as f:
+    VERIFYING_KEY = f.read()
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.getenv('JWT_ACCESS_TOKEN_LIFETIME_MINUTES', 30))),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=int(os.getenv('JWT_REFRESH_TOKEN_LIFETIME_DAYS', 7))),
@@ -172,8 +182,8 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': True,
     'ALGORITHM': os.getenv('JWT_ALGORITHM', 'RS256'),
-    'SIGNING_KEY': None,  # Sera configuré selon l'algorithme
-    'VERIFYING_KEY': None,
+    'SIGNING_KEY': os.getenv('ALGORITHM_SIGNING_KEY'),  # Sera configuré selon l'algorithme
+    'VERIFYING_KEY': os.getenv('ALGORITHM_VERIFYING_KEY'),  # Sera configuré selon l'algorithme
     'AUDIENCE': 'aria-secure',
     'ISSUER': 'ARIA Secure',
     'AUTH_HEADER_TYPES': ('Bearer',),
@@ -298,82 +308,82 @@ AXES_ENABLE_ACCESS_FAILURE_LOG = True
 # LOGGING
 # ============================================
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
-        },
-        'simple': {
-            'format': '{levelname} {asctime} {message}',
-            'style': '{',
-        },
-        'json': {
-            'format': '{"time": "%(asctime)s", "level": "%(levelname)s", "module": "%(module)s", "message": "%(message)s"}',
-        },
-    },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse',
-        },
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        },
-    },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-            'filters': ['require_debug_true'],
-        },
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.getenv('LOG_DIR', '/var/log/aria-secure') + '/django.log',
-            'maxBytes': 10485760,  # 10 MB
-            'backupCount': 10,
-            'formatter': 'json',
-        },
-        'mail_admins': {
-            'level': 'ERROR',
-            'class': 'django.utils.log.AdminEmailHandler',
-            'filters': ['require_debug_false'],
-        },
-        'sentry': {
-            'level': 'ERROR',
-            'class': 'sentry_sdk.integrations.logging.EventHandler',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console', 'file'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        'django.request': {
-            'handlers': ['mail_admins', 'sentry'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
-        'django.security': {
-            'handlers': ['mail_admins', 'sentry'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
-        'apps': {
-            'handlers': ['console', 'file'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'formatters': {
+#         'verbose': {
+#             'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+#             'style': '{',
+#         },
+#         'simple': {
+#             'format': '{levelname} {asctime} {message}',
+#             'style': '{',
+#         },
+#         'json': {
+#             'format': '{"time": "%(asctime)s", "level": "%(levelname)s", "module": "%(module)s", "message": "%(message)s"}',
+#         },
+#     },
+#     'filters': {
+#         'require_debug_false': {
+#             '()': 'django.utils.log.RequireDebugFalse',
+#         },
+#         'require_debug_true': {
+#             '()': 'django.utils.log.RequireDebugTrue',
+#         },
+#     },
+#     'handlers': {
+#         'console': {
+#             'level': 'DEBUG',
+#             'class': 'logging.StreamHandler',
+#             'formatter': 'simple',
+#             'filters': ['require_debug_true'],
+#         },
+#         'file': {
+#             'level': 'INFO',
+#             'class': 'logging.handlers.RotatingFileHandler',
+#             'filename': os.getenv('LOG_DIR', '/var/log/aria-secure') + '/django.log',
+#             'maxBytes': 10485760,  # 10 MB
+#             'backupCount': 10,
+#             'formatter': 'json',
+#         },
+#         'mail_admins': {
+#             'level': 'ERROR',
+#             'class': 'django.utils.log.AdminEmailHandler',
+#             'filters': ['require_debug_false'],
+#         },
+#         'sentry': {
+#             'level': 'ERROR',
+#             'class': 'sentry_sdk.integrations.logging.EventHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console', 'file'],
+#             'level': 'INFO',
+#             'propagate': True,
+#         },
+#         'django.request': {
+#             'handlers': ['mail_admins', 'sentry'],
+#             'level': 'ERROR',
+#             'propagate': False,
+#         },
+#         'django.security': {
+#             'handlers': ['mail_admins', 'sentry'],
+#             'level': 'ERROR',
+#             'propagate': False,
+#         },
+#         'apps': {
+#             'handlers': ['console', 'file'],
+#             'level': 'INFO',
+#             'propagate': True,
+#         },
+#     },
+#     'root': {
+#         'handlers': ['console'],
+#         'level': 'INFO',
+#     },
+# }
 
 # ============================================
 # AI MODEL SETTINGS
@@ -423,6 +433,17 @@ SPECTACULAR_SETTINGS = {
 
 AUDIT_LOG_ENABLED = True
 AUDIT_LOG_ACTIONS = ['CREATE', 'UPDATE', 'DELETE', 'VIEW', 'LOGIN', 'LOGOUT', 'EXPORT', 'ANALYZE']
+AUDIT_LOG_INCLUDE_GET = False
+AUDIT_LOG_EXCLUDE_PATHS = [
+    '/admin/jsi18n/',
+    '/api/v1/health/',
+    '/static/',
+    '/media/',
+]
+AUDIT_LOG_SENSITIVE_FIELDS = [
+    'password', 'token', 'secret', 'key', 'authorization',
+    'access', 'refresh', 'otp_code', 'mfa_code'
+]
 
 # ============================================
 # EMAIL

@@ -13,8 +13,12 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.0.2.2', '*']
 # Database - SQLite pour le développement local
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME', 'aria_db'),
+        'USER': os.getenv('DB_USER', 'aria_user'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
@@ -56,12 +60,12 @@ SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
-# Logging plus verbeux en développement
-LOGGING['loggers']['django.db.backends'] = {
-    'handlers': [],
-    'level': 'ERROR',
-    'propagate': False,
-}
+# # Logging plus verbeux en développement
+# LOGGING['loggers']['django.db.backends'] = {
+#     'handlers': [],
+#     'level': 'ERROR',
+#     'propagate': False,
+# }
 
 # Celery - Exécution synchrone pour simplifier le dev
 CELERY_TASK_ALWAYS_EAGER = True
@@ -86,7 +90,3 @@ SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'] = timedelta(hours=1)
 
 # Désactiver Axes en dev pour éviter les blocages
 AXES_ENABLED = False
-
-print(f"✅ Configuration DEVELOPMENT chargée")
-print(f"   DEBUG: {DEBUG}")
-print(f"   Database: {DATABASES['default']['ENGINE']}")
