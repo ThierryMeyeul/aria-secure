@@ -1,0 +1,31 @@
+# backend/requirements-dev.txt
+# Dépendances pour le développement et les tests
+
+-r requirements.txt
+
+# Tests
+pytest>=8.0.0
+pytest-django>=4.7.0
+pytest-cov>=4.1.0
+pytest-factoryboy>=2.5.1
+factory-boy>=3.3.0
+faker>=23.1.0
+coverage>=7.4.1
+
+# Qualité de code
+black>=24.2.0
+isort>=5.13.2
+flake8>=7.0.0
+pylint>=3.0.3
+mypy>=1.8.0
+pre-commit>=3.6.0
+
+# Debugging
+ipython>=8.21.0
+ipdb>=0.13.13
+django-debug-toolbar>=4.3.0
+django-silk>=5.1.0   # Profiling
+
+# Documentation
+sphinx>=7.2.6
+sphinx-rtd-theme>=2.0.0
