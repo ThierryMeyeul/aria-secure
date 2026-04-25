@@ -11,6 +11,7 @@ import pyotp
 import qrcode
 import base64
 from io import BytesIO
+import uuid
 
 from .models import User, LoginAttempt
 from .serializers import (
@@ -62,13 +63,38 @@ class RegisterView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        
+        # Créer l'utilisateur inactif
+        user = serializer.save(is_active=False, email_verified=False)
+        
+        # Générer un token de vérification
+        import uuid
+        token = str(uuid.uuid4())
+        user.email_verification_token = token
+        user.email_verification_sent_at = timezone.now()
+        user.save()
+        
+        # Envoyer l'email de vérification
+        verification_link = f"http://localhost:8000/api/v1/auth/verify-email/{token}/"
+        
+        send_mail(
+            subject='ARIA Secure - Vérification de votre compte',
+            message=f'Bonjour {user.first_name},\n\n'
+                    f'Merci de vous être inscrit sur ARIA Secure.\n\n'
+                    f'Pour activer votre compte, veuillez cliquer sur le lien suivant :\n\n'
+                    f'{verification_link}\n\n'
+                    f'Ce lien expire dans 24 heures.\n\n'
+                    f'Si vous n\'avez pas créé ce compte, ignorez cet email.\n\n'
+                    f'Cordialement,\nL\'équipe ARIA Secure',
+            from_email=None,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
         
         return Response({
-            'message': 'Compte créé avec succès.',
-            'user': UserSerializer(user).data
+            'message': 'Compte créé avec succès. Un email de vérification vous a été envoyé. Veuillez vérifier votre boîte mail pour activer votre compte.',
+            'user_id': str(user.id)
         }, status=status.HTTP_201_CREATED)
-
 
 class LoginView(APIView):
     """Première étape de connexion - Vérification email/password."""
@@ -80,6 +106,13 @@ class LoginView(APIView):
         serializer.is_valid(raise_exception=True)
         
         user = serializer.validated_data['user']
+        
+        if not user.email_verified:
+            return Response({
+                'error': 'Votre compte n\'est pas activé. Veuillez vérifier votre email.',
+                'email_not_verified': True,
+                'email': user.email
+            }, status=status.HTTP_403_FORBIDDEN)
         
         # Log de la tentative réussie (première étape)
         log_login_attempt(
@@ -346,20 +379,27 @@ class PasswordResetRequestView(APIView):
         
         try:
             user = User.objects.get(email=email)
-            
-            # Générer un token de réinitialisation
             reset_token = RefreshToken.for_user(user)
             reset_token['purpose'] = 'password_reset'
             reset_token.set_exp(lifetime=timezone.timedelta(hours=1))
             
-            # Envoyer l'email (simulation console en dev)
-            reset_link = f"{settings.FRONTEND_URL}/reset-password?token={reset_token}"
+            reset_link = f"http://localhost:8000/api/v1/auth/password/reset/confirm/"
             
-            # TODO: Envoyer vrai email en production
-            print(f"Password reset link for {email}: {reset_link}")
+            send_mail(
+                subject='ARIA Secure - Réinitialisation de mot de passe',
+                message=f'Bonjour {user.first_name},\n\n'
+                        f'Vous avez demandé la réinitialisation de votre mot de passe.\n\n'
+                        f'Utilisez le token suivant : {reset_token}\n\n'
+                        f'POST sur : {reset_link}\n\n'
+                        f'Body : {{"token": "{reset_token}", "new_password": "...", "new_password_confirm": "..."}}\n\n'
+                        f'Ce token expire dans 1 heure.\n\n'
+                        f'Cordialement,\nL\'équipe ARIA Secure',
+                from_email=None,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
             
         except User.DoesNotExist:
-            # Ne pas révéler si l'email existe
             pass
         
         return Response({
@@ -504,3 +544,93 @@ class UserListView(generics.ListAPIView):
         if role:
             queryset = queryset.filter(role=role)
         return queryset
+    
+    
+class EmailVerificationView(APIView):
+    """Active le compte utilisateur via le lien reçu par email."""
+    
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request, token):
+        try:
+            user = User.objects.get(email_verification_token=token)
+            
+            if user.email_verified:
+                return Response({
+                    'message': 'Ce compte est déjà activé. Vous pouvez vous connecter.'
+                }, status=status.HTTP_200_OK)
+            
+            # Vérifier si le token n'a pas expiré (24h)
+            if user.email_verification_sent_at:
+                expiry = user.email_verification_sent_at + timezone.timedelta(hours=24)
+                if timezone.now() > expiry:
+                    return Response({
+                        'error': 'Le lien d\'activation a expiré. Veuillez vous réinscrire.'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Activer le compte
+            user.email_verified = True
+            user.is_active = True
+            user.email_verification_token = ''
+            user.save()
+            
+            return Response({
+                'message': 'Compte activé avec succès. Vous pouvez maintenant vous connecter.'
+            }, status=status.HTTP_200_OK)
+            
+        except User.DoesNotExist:
+            return Response({
+                'error': 'Lien d\'activation invalide.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ResendVerificationEmailView(APIView):
+    """Renvoie l'email de vérification."""
+    
+    permission_classes = [permissions.AllowAny]
+    
+    def post(self, request):
+        email = request.data.get('email', '').lower()
+        
+        try:
+            user = User.objects.get(email=email)
+            
+            if user.email_verified:
+                return Response({
+                    'message': 'Ce compte est déjà activé.'
+                }, status=status.HTTP_200_OK)
+            
+            # Générer un nouveau token
+            token = str(uuid.uuid4())
+            user.email_verification_token = token
+            user.email_verification_sent_at = timezone.now()
+            user.save()
+            
+            # Envoyer l'email
+            self.send_verification_email(user, token)
+            
+            return Response({
+                'message': 'Un nouvel email de vérification a été envoyé.'
+            }, status=status.HTTP_200_OK)
+            
+        except User.DoesNotExist:
+            return Response({
+                'message': 'Si cet email existe, un lien de vérification a été envoyé.'
+            }, status=status.HTTP_200_OK)
+    
+    def send_verification_email(self, user, token):
+        verification_link = f"http://localhost:8000/api/v1/auth/verify-email/{token}/"
+        
+        send_mail(
+            subject='ARIA Secure - Vérification de votre compte',
+            message=f'Bonjour {user.first_name},\n\n'
+                    f'Merci de vous être inscrit sur ARIA Secure.\n\n'
+                    f'Pour activer votre compte, veuillez cliquer sur le lien suivant :\n\n'
+                    f'{verification_link}\n\n'
+                    f'Ce lien expire dans 24 heures.\n\n'
+                    f'Si vous n\'avez pas créé ce compte, ignorez cet email.\n\n'
+                    f'Cordialement,\nL\'équipe ARIA Secure',
+            from_email=None,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )

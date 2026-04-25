@@ -85,6 +85,12 @@ class LoginSerializer(serializers.Serializer):
         if not user.is_active:
             raise serializers.ValidationError({"email": "Ce compte est désactivé."})
         
+        if not user.email_verified:
+            raise serializers.ValidationError({
+                "email": "Compte non activé. Veuillez vérifier votre email.",
+                "email_not_verified": True
+            })
+        
         attrs['user'] = user
         return attrs
 

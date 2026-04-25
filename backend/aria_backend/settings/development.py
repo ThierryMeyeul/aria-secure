@@ -29,8 +29,6 @@ if 'test' in sys.argv:
         'NAME': ':memory:',
     }
 
-# Email backend pour développement (console)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Django Debug Toolbar
 INSTALLED_APPS += ['debug_toolbar', 'django_extensions', 'silk']
@@ -85,8 +83,17 @@ REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'].append(
 )
 
 # Plus petite durée de vie des tokens en dev pour tester les refresh
-SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'] = timedelta(minutes=5)
-SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'] = timedelta(hours=1)
+SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'] = timedelta(minutes=30)
+SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'] = timedelta(days=1)
 
 # Désactiver Axes en dev pour éviter les blocages
 AXES_ENABLED = False
+
+# Email - Utiliser un vrai serveur SMTP
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@aria-secure.com')

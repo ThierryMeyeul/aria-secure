@@ -25,4 +25,8 @@ urlpatterns = [
     # Admin
     path('users/', views.UserListView.as_view(), name='user-list'),
     path('users/<uuid:id>/', views.UserDetailView.as_view(), name='user-detail'),
+    
+    # Email verification
+    path('verify-email/<str:token>/', views.EmailVerificationView.as_view(), name='verify-email'),
+    path('resend-verification/', views.ResendVerificationEmailView.as_view(), name='resend-verification'),
 ]
