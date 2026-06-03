@@ -39,3 +39,17 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+=======
+__pycache__/
+*.pyc
+.env
+*.onnx
+*.onnx.data
+node_modules/
+.expo/
+venv/
+*.db
+*.pth
+*.zip
+aria_rapport.json
+>>>>>>> c2064fd1e11f9767d29261e96141c15eac6b8dc9
